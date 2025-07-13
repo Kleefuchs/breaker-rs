@@ -1,6 +1,5 @@
 use raylib::prelude::*;
 use crate::gameobject;
-use crate::controllable;
 
 pub struct Platform {
     pub body: Rectangle,
@@ -9,7 +8,7 @@ pub struct Platform {
 
 
 impl gameobject::Gameobject for Platform {
-    fn update(&mut self, rl: &RaylibHandle) {
+    fn update(&mut self, _handle: &RaylibHandle) {
     }
 
     fn draw<T>(&self, texture_mode: &mut RaylibTextureMode<T>) {

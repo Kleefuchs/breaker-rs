@@ -1,22 +1,24 @@
 
 use raylib::prelude::*;
-use crate::{controllable::Controllable, game::Game, gameobject::Gameobject};
+
+use crate::{gameobject::Gameobject, controllable::Controllable, page::Page};
 
 mod breaker;
 mod gameobject;
 mod rl;
 mod controllable;
-mod game;
+mod page;
 mod gamestate;
 mod game_over;
 mod text_data;
+mod pause;
+mod menu;
 
 fn create_default_breaker(world_size: Vector2) -> breaker::Breaker {
     breaker::Breaker::new(world_size.x as i32, world_size.y as i32, 2.5, &mut [Color::RED, Color::ORANGE, Color::YELLOW, Color::GREEN, Color::BLUE, Color::PURPLE])
 }
 
-fn create_default_game_over<'a, Tfont: RaylibFont>(text: &'a str, world_size: Vector2, font: &'a Tfont, font_size: f32, measured_text: i32) -> game_over::GameOver<'a, Tfont> {
-    game_over::GameOver::new(
+fn create_text_in_middle_of_screen<'a, Tfont: RaylibFont>(text: &'a str, world_size: Vector2, font: &'a Tfont, font_size: f32, measured_text: i32) -> text_data::TextData<'a, Tfont> {
         text_data::TextData {
             font,
             text,
@@ -27,8 +29,6 @@ fn create_default_game_over<'a, Tfont: RaylibFont>(text: &'a str, world_size: Ve
             spacing: 1.0,
             tint: Color::WHITE,
         }
-    )
-
 }
 
 fn main() {
@@ -37,12 +37,16 @@ fn main() {
     let mut render_texture: RenderTexture2D = rl.handle.load_render_texture(&rl.thread, world_size.x as u32, world_size.y as u32).unwrap();
     let mut breaker: breaker::Breaker = create_default_breaker(world_size);
     let font_default = rl.handle.get_font_default();
-    let mut game_over: game_over::GameOver<WeakFont> = create_default_game_over("Game Over", world_size, &font_default, 30.0, rl.handle.measure_text("Game Over", 30));
+    let mut game_over: game_over::GameOver<WeakFont> = game_over::GameOver::new(create_text_in_middle_of_screen("Game Over", world_size, &font_default, 30.0, rl.handle.measure_text("Game Over", 30)));
+    let mut pause: pause::Pause<WeakFont> = pause::Pause::new(create_text_in_middle_of_screen("Game Paused", world_size, &font_default, 30.0, rl.handle.measure_text("Game Paused", 30)));
     let mut gamestate: gamestate::Gamestate = gamestate::Gamestate::Running;
+
+
+
     while !rl.handle.window_should_close() {
         match gamestate {
             gamestate::Gamestate::Running => {
-                breaker.control(&rl.handle, &mut [KeyboardKey::KEY_A, KeyboardKey::KEY_D]);
+                breaker.control(&rl.handle, &mut [KeyboardKey::KEY_A, KeyboardKey::KEY_D, KeyboardKey::KEY_SPACE]);
                 breaker.update(&rl.handle);
                 gamestate = breaker.get_current_state();
                 {
@@ -51,8 +55,22 @@ fn main() {
                 }
             },
             gamestate::Gamestate::Paused => {
-
+                pause.should_unpause = false;
+                pause.control(&rl.handle, &mut [KeyboardKey::KEY_SPACE]);
+                let mut texture_mode = rl.handle.begin_texture_mode(&rl.thread, &mut render_texture);
+                breaker.draw(&mut texture_mode);
+                pause.draw(&mut texture_mode);
+                gamestate = pause.get_current_state();
             },
+
+            gamestate::Gamestate::Resume => {
+                pause.should_unpause = true;
+                breaker.should_pause = false;
+                let mut texture_mode = rl.handle.begin_texture_mode(&rl.thread, &mut render_texture);
+                breaker.draw(&mut texture_mode);
+                gamestate = gamestate::Gamestate::Running;
+            },
+
             gamestate::Gamestate::GameOver => {
                 game_over.control(&rl.handle, &mut [KeyboardKey::KEY_SPACE]);
                 game_over.update(&rl.handle);
@@ -60,11 +78,14 @@ fn main() {
                 let mut texture_mode = rl.handle.begin_texture_mode(&rl.thread, &mut render_texture);
                 game_over.draw(&mut texture_mode);
             },
+
             gamestate::Gamestate::Init => {
                 breaker = create_default_breaker(world_size);
                 gamestate = gamestate::Gamestate::Running;
-                game_over = create_default_game_over("Game Over", world_size, &font_default, 30.0, rl.handle.measure_text("Game Over", 30));
+                game_over = game_over::GameOver::new(create_text_in_middle_of_screen("Game Over", world_size, &font_default, 30.0, rl.handle.measure_text("Game Over", 30)));
+                pause = pause::Pause::new(create_text_in_middle_of_screen("Game Paused", world_size, &font_default, 30.0, rl.handle.measure_text("Game Paused", 30)));
             },
+
             gamestate::Gamestate::Menu => {
 
             }

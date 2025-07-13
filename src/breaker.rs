@@ -4,7 +4,7 @@ mod platform;
 mod block;
 mod ball;
 mod block_data;
-use crate::game;
+use crate::page;
 use crate::gamestate;
 
 pub struct Breaker {
@@ -13,7 +13,8 @@ pub struct Breaker {
     platform: platform::Platform,
     block_data: block_data::BlockData,
     ball: ball::Ball,
-    platform_delta_x_change_factor: f32
+    platform_delta_x_change_factor: f32,
+    pub should_pause: bool,
 }
 
 impl Breaker {
@@ -43,27 +44,37 @@ impl Breaker {
                 },
                 color: Color::WHITE,
             },
-            platform_delta_x_change_factor
+            platform_delta_x_change_factor,
+            should_pause: false,
         }
     }   
 }
 
 impl controllable::Controllable for Breaker {
     fn control(&mut self, handle: &RaylibHandle, keys: &mut [KeyboardKey]) {
-        assert!(keys.len()==2);
+        assert!(keys.len()==3);
         if handle.is_key_down(keys[0]) & (self.platform.body.x > 0.0) {
             self.platform.body.x -= 300.0 * handle.get_frame_time();
         }
+
         if handle.is_key_down(keys[1]) & (self.platform.body.x + self.platform.body.width < self.world_width as f32) {
             self.platform.body.x += 300.0 * handle.get_frame_time();
+        }
+
+        if handle.is_key_pressed(keys[2]) {
+            self.should_pause = true;
         }
     }
 }
 
-impl game::Game for Breaker {
+impl page::Page for Breaker {
     fn get_current_state(&self) -> gamestate::Gamestate {
         if self.ball.pos.y - self.ball.radius > self.world_height as f32 {
             return gamestate::Gamestate::GameOver;
+        }
+
+        if self.should_pause {
+            return gamestate::Gamestate::Paused;
         }
 
         gamestate::Gamestate::Running
