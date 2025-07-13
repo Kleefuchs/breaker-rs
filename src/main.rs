@@ -144,6 +144,10 @@ fn main() {
                 game_over.draw(&mut texture_mode);
             }
 
+            gamestate::Gamestate::Won => {
+
+            },
+
             gamestate::Gamestate::Init => {
                 breaker = create_default_breaker(world_size);
                 gamestate = gamestate::Gamestate::Running;

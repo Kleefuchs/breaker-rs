@@ -5,6 +5,7 @@ pub enum Gamestate {
     Paused,
     Resume,
     GameOver,
+    Won,
     Init,
     Menu,
 }

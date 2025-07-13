@@ -10,7 +10,7 @@ pub struct Menu<'a, Tfont1: RaylibFont> {
 }
 
 impl<'a, Tfont1: RaylibFont> gameobject::Gameobject for Menu<'a, Tfont1> {
-    fn update(&mut self, handle: &raylib::RaylibHandle) {
+    fn update(&mut self, _handle: &raylib::RaylibHandle) {
     }
 
     fn draw<T>(&self, texture_mode: &mut raylib::prelude::RaylibTextureMode<T>) {
