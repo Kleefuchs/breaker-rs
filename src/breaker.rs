@@ -2,18 +2,22 @@ use raylib::prelude::*;
 use crate::{controllable,  gameobject};
 mod platform;
 mod block;
-mod blocks;
 mod ball;
+mod block_data;
+use crate::game;
+use crate::gamestate;
 
 pub struct Breaker {
     world_width: i32,
     world_height: i32,
     platform: platform::Platform,
-    blocks: Vec<block::Block>,
+    block_data: block_data::BlockData,
+    ball: ball::Ball,
+    platform_delta_x_change_factor: f32
 }
 
 impl Breaker {
-    pub fn new(world_width: i32, world_height: i32) -> Breaker {
+    pub fn new(world_width: i32, world_height: i32, platform_delta_x_change_factor: f32, colors: &mut [Color]) -> Breaker {
         Breaker {
             world_width,
             world_height,
@@ -26,7 +30,20 @@ impl Breaker {
                 },
                 color: Color::WHITE,
             },
-            blocks: blocks::generate_blocks(world_width, world_height, 3, 5, 4, 1),
+            block_data: block_data::BlockData::new(world_width, world_height, 3, 6, 6, 1, colors),
+            ball: ball::Ball {
+                pos: Vector2 {
+                    x: (world_width / 2) as f32,
+                    y: (world_height / 2) as f32
+                },
+                radius: 5.0,
+                delta_speed: Vector2 {
+                    x: 175.0,
+                    y: 175.0
+                },
+                color: Color::WHITE,
+            },
+            platform_delta_x_change_factor
         }
     }   
 }
@@ -43,16 +60,58 @@ impl controllable::Controllable for Breaker {
     }
 }
 
+impl game::Game for Breaker {
+    fn get_current_state(&self) -> gamestate::Gamestate {
+        if self.ball.pos.y - self.ball.radius > self.world_height as f32 {
+            return gamestate::Gamestate::GameOver;
+        }
+
+        gamestate::Gamestate::Running
+    }
+}
+
 impl gameobject::Gameobject for Breaker {
-    fn update(&mut self) {
+    fn update(&mut self, handle: &RaylibHandle) {
+        self.ball.update(handle);
+        if self.platform.body.check_collision_circle_rec(self.ball.pos, self.ball.radius) && (self.ball.delta_speed.y > 0.0) {
+            self.ball.delta_speed.y *= -1.0;
+            self.ball.delta_speed.x = (self.ball.pos.x - (self.platform.body.x + self.platform.body.width / 2.0)) * self.platform_delta_x_change_factor;
+        }
+
+        if self.ball.pos.x + self.ball.radius >= self.world_width as f32 && (self.ball.delta_speed.x > 0.0) {
+            self.ball.delta_speed.x *= -1.0;
+        }
+
+        if self.ball.pos.x - self.ball.radius <= 0.0 && (self.ball.delta_speed.x < 0.0) {
+            self.ball.delta_speed.x *= -1.0;
+        }
+
+        if self.ball.pos.y - self.ball.radius <= 0.0 && (self.ball.delta_speed.y < 0.0) {
+            self.ball.delta_speed.y *= -1.0;
+        }
+
+        if self.block_data.block_area.check_collision_circle_rec(self.ball.pos, self.ball.radius) {
+            for block_index in 0..self.block_data.blocks.len() {
+                let block: &block::Block = &self.block_data.blocks[block_index];
+                if block.body.check_collision_circle_rec(self.ball.pos, self.ball.radius) {
+                    if (self.ball.pos.x + self.ball.radius >= block.body.x) && (self.ball.pos.x - self.ball.radius <= block.body.x + block.body.width) {
+                        self.ball.delta_speed.y *= -1.0;
+                    } else {
+                        self.ball.delta_speed.x *= -1.0;
+                    }
+                    self.block_data.blocks.remove(block_index);
+                    break;
+                }
+            }
+        }
+
     }
 
     fn draw<T>(&self, texture_mode: &mut RaylibTextureMode<T>) {
         texture_mode.clear_background(Color::BLACK);
         self.platform.draw(texture_mode);
-        for block in &self.blocks {
-            block.draw(texture_mode);
-        }
+        self.block_data.draw(texture_mode);
+        self.ball.draw(texture_mode);
         texture_mode.draw_fps(10, 10);
     }
 }

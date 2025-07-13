@@ -9,7 +9,7 @@ pub struct Platform {
 
 
 impl gameobject::Gameobject for Platform {
-    fn update(&mut self) {
+    fn update(&mut self, rl: &RaylibHandle) {
     }
 
     fn draw<T>(&self, texture_mode: &mut RaylibTextureMode<T>) {
