@@ -18,7 +18,7 @@ fn create_default_breaker(world_size: Vector2) -> breaker::Breaker {
     breaker::Breaker::new(
         world_size.x as i32,
         world_size.y as i32,
-        2.5,
+        4.0,
         &mut [
         Color::RED,
         Color::ORANGE,
@@ -58,6 +58,7 @@ fn create_text_in_middle_of_screen<'a, Tfont: RaylibFont>(
 fn main() {
     let world_size: Vector2 = Vector2 { x: 640.0, y: 360.0 };
     let mut rl = rl::Rl::from(raylib::init().size(1280, 720).title("Breaker").build());
+    rl.handle.set_target_fps(180);
     let mut render_texture: RenderTexture2D = rl
         .handle
         .load_render_texture(&rl.thread, world_size.x as u32, world_size.y as u32)

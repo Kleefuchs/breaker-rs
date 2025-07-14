@@ -27,7 +27,7 @@ impl Breaker {
                     x: (world_width / 2 - 50) as f32,
                     y: (world_height - world_height / 5) as f32,
                     width: 100.0,
-                    height: 20.0,
+                    height: 15.0,
                 },
                 color: Color::WHITE,
             },
@@ -54,11 +54,11 @@ impl controllable::Controllable for Breaker {
     fn control(&mut self, handle: &RaylibHandle, keys: &mut [KeyboardKey]) {
         assert!(keys.len()==3);
         if handle.is_key_down(keys[0]) & (self.platform.body.x > 0.0) {
-            self.platform.body.x -= 300.0 * handle.get_frame_time();
+            self.platform.body.x -= 250.0 * handle.get_frame_time();
         }
 
         if handle.is_key_down(keys[1]) & (self.platform.body.x + self.platform.body.width < self.world_width as f32) {
-            self.platform.body.x += 300.0 * handle.get_frame_time();
+            self.platform.body.x += 250.0 * handle.get_frame_time();
         }
 
         if handle.is_key_pressed(keys[2]) {
@@ -110,7 +110,7 @@ impl gameobject::Gameobject for Breaker {
             for block_index in 0..self.block_data.blocks.len() {
                 let block: &block::Block = &self.block_data.blocks[block_index];
                 if block.body.check_collision_circle_rec(self.ball.pos, self.ball.radius) {
-                    if (self.ball.pos.x - self.ball.radius >= block.body.x) & (self.ball.pos.x + self.ball.radius <= block.body.x + block.body.width) {
+                    if (self.ball.pos.x - self.ball.radius > block.body.x) & (self.ball.pos.x + self.ball.radius < block.body.x + block.body.width) {
                         self.ball.delta_speed.y *= -1.0;
                     } else {
                         self.ball.delta_speed.x *= -1.0;
