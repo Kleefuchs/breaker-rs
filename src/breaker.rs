@@ -69,6 +69,11 @@ impl controllable::Controllable for Breaker {
 
 impl page::Page for Breaker {
     fn get_current_state(&self) -> gamestate::Gamestate {
+
+        if self.block_data.blocks.is_empty() {
+            return gamestate::Gamestate::Won;
+        }
+
         if self.ball.pos.y - self.ball.radius > self.world_height as f32 {
             return gamestate::Gamestate::GameOver;
         }

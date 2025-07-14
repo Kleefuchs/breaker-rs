@@ -72,6 +72,9 @@ fn main() {
                 30.0,
                 rl.handle.measure_text("Game Over", 30),
         ));
+
+    let mut won: won::Won<WeakFont> = won::Won::new(create_text_in_middle_of_screen("Won", world_size, &font_default, 30.0, rl.handle.measure_text("Won", 30)));
+
     let mut pause: pause::Pause<WeakFont> = pause::Pause::new(create_text_in_middle_of_screen(
             "Game Paused",
             world_size,
@@ -90,6 +93,7 @@ fn main() {
         spacing: 3.0,
         tint: Color::WHITE,
     });
+
 
     let mut gamestate: gamestate::Gamestate = gamestate::Gamestate::Menu;
 
@@ -128,6 +132,8 @@ fn main() {
                 pause.should_unpause = true;
                 breaker.should_pause = false;
                 menu.should_start = false;
+                game_over.return_to_game = false;
+                won.return_to_game = false;
                 let mut texture_mode = rl
                     .handle
                     .begin_texture_mode(&rl.thread, &mut render_texture);
@@ -146,7 +152,13 @@ fn main() {
             }
 
             gamestate::Gamestate::Won => {
-
+                won.control(&rl.handle, &mut [KeyboardKey::KEY_SPACE]);
+                won.update(&rl.handle);
+                gamestate = game_over.get_current_state();
+                let mut texture_mode = rl
+                    .handle
+                    .begin_texture_mode(&rl.thread, &mut render_texture);
+                won.draw(&mut texture_mode);
             },
 
             gamestate::Gamestate::Init => {
@@ -158,6 +170,14 @@ fn main() {
                         &font_default,
                         30.0,
                         rl.handle.measure_text("Game Over", 30),
+                ));
+
+                won = won::Won::new(create_text_in_middle_of_screen(
+                        "Won",
+                        world_size,
+                        &font_default,
+                        30.0,
+                        rl.handle.measure_text("Won", 30),
                 ));
 
                 pause = pause::Pause::new(create_text_in_middle_of_screen(
