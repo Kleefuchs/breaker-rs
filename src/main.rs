@@ -12,6 +12,7 @@ mod page;
 mod pause;
 mod rl;
 mod text_data;
+mod won;
 
 fn create_default_breaker(world_size: Vector2) -> breaker::Breaker {
     breaker::Breaker::new(

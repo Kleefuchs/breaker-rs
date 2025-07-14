@@ -105,7 +105,7 @@ impl gameobject::Gameobject for Breaker {
             for block_index in 0..self.block_data.blocks.len() {
                 let block: &block::Block = &self.block_data.blocks[block_index];
                 if block.body.check_collision_circle_rec(self.ball.pos, self.ball.radius) {
-                    if (self.ball.pos.x + self.ball.radius >= block.body.x) && (self.ball.pos.x - self.ball.radius <= block.body.x + block.body.width) {
+                    if (self.ball.pos.x - self.ball.radius >= block.body.x) & (self.ball.pos.x + self.ball.radius <= block.body.x + block.body.width) {
                         self.ball.delta_speed.y *= -1.0;
                     } else {
                         self.ball.delta_speed.x *= -1.0;
