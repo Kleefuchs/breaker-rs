@@ -50,7 +50,7 @@ fn create_text_in_middle_of_screen<'a, Tfont: RaylibFont>(
         },
         rotation: 0.0,
         font_size,
-        spacing: 1.0,
+        spacing: 5.0,
         tint: Color::WHITE,
     }
 }
@@ -155,7 +155,7 @@ fn main() {
             gamestate::Gamestate::Won => {
                 won.control(&rl.handle, &mut [KeyboardKey::KEY_SPACE]);
                 won.update(&rl.handle);
-                gamestate = game_over.get_current_state();
+                gamestate = won.get_current_state();
                 let mut texture_mode = rl
                     .handle
                     .begin_texture_mode(&rl.thread, &mut render_texture);
