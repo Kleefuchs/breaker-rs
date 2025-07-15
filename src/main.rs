@@ -20,12 +20,12 @@ fn create_default_breaker(world_size: Vector2) -> breaker::Breaker {
         world_size.y as i32,
         4.0,
         &mut [
-        Color::RED,
-        Color::ORANGE,
-        Color::YELLOW,
-        Color::GREEN,
-        Color::BLUE,
-        Color::PURPLE,
+            Color::RED,
+            Color::ORANGE,
+            Color::YELLOW,
+            Color::GREEN,
+            Color::BLUE,
+            Color::PURPLE,
         ],
     )
 }
@@ -67,34 +67,48 @@ fn main() {
     let font_default = rl.handle.get_font_default();
     let mut game_over: game_over::GameOver<WeakFont> =
         game_over::GameOver::new(create_text_in_middle_of_screen(
-                "Game Over",
-                world_size,
-                &font_default,
-                30.0,
-                rl.handle.measure_text("Game Over", 30),
-        ));
-
-    let mut won: won::Won<WeakFont> = won::Won::new(create_text_in_middle_of_screen("Won", world_size, &font_default, 30.0, rl.handle.measure_text("Won", 30)));
-
-    let mut pause: pause::Pause<WeakFont> = pause::Pause::new(create_text_in_middle_of_screen(
-            "Game Paused",
+            "Game Over",
             world_size,
             &font_default,
             30.0,
-            rl.handle.measure_text("Game Paused", 30),
+            rl.handle.measure_text("Game Over", 30),
+        ));
+
+    let mut won: won::Won<WeakFont> = won::Won::new(create_text_in_middle_of_screen(
+        "Won",
+        world_size,
+        &font_default,
+        30.0,
+        rl.handle.measure_text("Won", 30),
+    ));
+
+    let mut pause: pause::Pause<WeakFont> = pause::Pause::new(create_text_in_middle_of_screen(
+        "Game Paused",
+        world_size,
+        &font_default,
+        30.0,
+        rl.handle.measure_text("Game Paused", 30),
     ));
 
     let mut menu: menu::Menu<WeakFont> = menu::Menu::new(text_data::TextData {
         font: &font_default,
         text: "Breaker-rs: Breakout written in Rust!",
-        position: Vector2 {x: world_size.x / 2.0, y: world_size.y / 4.0},
-        origin: Vector2 {x: rl.handle.measure_text("Breaker-rs: Breakout written in Rust!", 30) as f32 / 2.0, y: 0.0},
+        position: Vector2 {
+            x: world_size.x / 2.0,
+            y: world_size.y / 4.0,
+        },
+        origin: Vector2 {
+            x: rl
+                .handle
+                .measure_text("Breaker-rs: Breakout written in Rust!", 30) as f32
+                / 2.0,
+            y: 0.0,
+        },
         rotation: 0.0,
         font_size: 30.0,
         spacing: 3.0,
         tint: Color::WHITE,
     });
-
 
     let mut gamestate: gamestate::Gamestate = gamestate::Gamestate::Menu;
 
@@ -104,9 +118,9 @@ fn main() {
                 breaker.control(
                     &rl.handle,
                     &mut [
-                    KeyboardKey::KEY_A,
-                    KeyboardKey::KEY_D,
-                    KeyboardKey::KEY_SPACE,
+                        KeyboardKey::KEY_A,
+                        KeyboardKey::KEY_D,
+                        KeyboardKey::KEY_SPACE,
                     ],
                 );
                 breaker.update(&rl.handle);
@@ -160,46 +174,55 @@ fn main() {
                     .handle
                     .begin_texture_mode(&rl.thread, &mut render_texture);
                 won.draw(&mut texture_mode);
-            },
+            }
 
             gamestate::Gamestate::Init => {
                 breaker = create_default_breaker(world_size);
                 gamestate = gamestate::Gamestate::Running;
                 game_over = game_over::GameOver::new(create_text_in_middle_of_screen(
-                        "Game Over",
-                        world_size,
-                        &font_default,
-                        30.0,
-                        rl.handle.measure_text("Game Over", 30),
+                    "Game Over",
+                    world_size,
+                    &font_default,
+                    30.0,
+                    rl.handle.measure_text("Game Over", 30),
                 ));
 
                 won = won::Won::new(create_text_in_middle_of_screen(
-                        "Won",
-                        world_size,
-                        &font_default,
-                        30.0,
-                        rl.handle.measure_text("Won", 30),
+                    "Won",
+                    world_size,
+                    &font_default,
+                    30.0,
+                    rl.handle.measure_text("Won", 30),
                 ));
 
                 pause = pause::Pause::new(create_text_in_middle_of_screen(
-                        "Game Paused",
-                        world_size,
-                        &font_default,
-                        30.0,
-                        rl.handle.measure_text("Game Paused", 30),
+                    "Game Paused",
+                    world_size,
+                    &font_default,
+                    30.0,
+                    rl.handle.measure_text("Game Paused", 30),
                 ));
 
                 menu = menu::Menu::new(text_data::TextData {
                     font: &font_default,
                     text: "Breaker-rs: Breakout written in Rust!",
-                    position: Vector2 {x: world_size.x / 2.0, y: world_size.y / 4.0},
-                    origin: Vector2 {x: rl.handle.measure_text("Breaker-rs: Breakout written in Rust!", 30) as f32 / 2.0, y: 0.0},
+                    position: Vector2 {
+                        x: world_size.x / 2.0,
+                        y: world_size.y / 4.0,
+                    },
+                    origin: Vector2 {
+                        x: rl
+                            .handle
+                            .measure_text("Breaker-rs: Breakout written in Rust!", 30)
+                            as f32
+                            / 2.0,
+                        y: 0.0,
+                    },
                     rotation: 0.0,
                     font_size: 30.0,
                     spacing: 3.0,
                     tint: Color::WHITE,
                 });
-
             }
 
             gamestate::Gamestate::Menu => {
